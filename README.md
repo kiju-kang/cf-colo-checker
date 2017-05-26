@@ -1,5 +1,5 @@
 # cf-colo-checker
-This program is a program that receives alarms when changing colo of cloudflare.
+This program is a structure that receives notifications when the colo of cloudflare changes.
 
 Hi. all
 I am an engineer living in Korea. I have recently been studying python 
