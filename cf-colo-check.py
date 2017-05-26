@@ -27,24 +27,33 @@ if __name__ == "__main__":
     now()
 
 
-
+try:
 # The contents of the colo_status_prev file are compared with the contents of the colo_status_now file, 
 # and a message indicating that the colo has been changed is sent to the telegram, 
 # and the current colo state is recorded in the colo_status_prev file
-with open('colo_status_prev') as f1, open('colo_status_now') as f2:
-        for line1, line2 in zip(f1, f2):
-                if line1 == line2:
-                        print 'Currently the state of colo is not changed {}'.format(line2)
-                else:
-                        message = "Cloudflare colo has been changed to {}".format(line2)
-                        subprocess.Popen('curl -g -s -X GET "http://your-telegram-api:8080/telegram/sendMessage.php?target=your-chat-group&message={}" > /dev/null '.format(message), shell=True)
-                        prev()
+        with open('colo_status_prev') as f1, open('colo_status_now') as f2:
+                for line1, line2 in zip(f1, f2):
+                        if line1 == line2:
+                                print 'Currently the state of colo is not changed {}'.format(line2)
+                        else:
+                                message = "Cloudflare colo has been changed to {}".format(line2)
+                                subprocess.Popen('curl -g -s -X GET "http://your-telegram-api:8080/telegram/sendMessage.php?target=your-chat-group&message={}" > /dev/null '.format(message), shell=True)
+                                prev()
 # Colo_status_prev Writes the current colo status to the colo_status_prev file if the file is empty.
-if os.stat('colo_status_prev').st_size == 0:
-        prev()
+        if os.stat('colo_status_prev').st_size == 0:
+                prev()
 
 #The information below is optional.
 #       message = 'Warning! colo previous status is empty'
 #       subprocess.Popen('curl -g -s -X GET "http://your-telegram-api:8080/telegram/sendMessage.php?target=your-chat-group&message={}" > /dev/null '.format(message), shell=True)
-else:
-        print 'prev status is not empty'
+        else:
+                print 'prev status is not empty'
+
+except IOError as e:
+        subprocess.Popen('curl -g -s -X GET "http://your-api-server:8080/telegram/sendMessage.php?target=your-chat-group&message=I/O error({0}){1}" > /dev/null '.format(e.errno, e.strerror), shell=True)
+except ValueError:
+        subprocess.Popen('curl -g -s -X GET "http://your-api-server:8080/telegram/sendMessage.php?target=your-chat-group&message=Coud not convert data" > /dev/null '.format(message), shell=True)
+except:
+        unexpected = "Unexpected error:", sys.exc_info()[0]
+        subprocess.Popen('curl -g -s -X GET "http://your-api-server:8080/telegram/sendMessage.php?target=your-chat-group&message={}" > /dev/null '.format(unexpected), shell=True)
+        raise
